@@ -283,7 +283,7 @@ class VQAModel(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(1280, 512),  
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+            nn.Dropout(0.35),
             nn.Linear(512, n_answer)
         )
     def forward(self, image, question):
@@ -365,13 +365,13 @@ def main():
     test_dataset = VQADataset(df_path="./data/valid.json", image_dir="./data/valid", transform=test_transform, answer=False)
     test_dataset.update_dict(train_dataset)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4, pin_memory=True)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=4, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)
 
     model = VQAModel(pre_model_name='bert-base-uncased', n_answer=len(train_dataset.answer2idx)).to(device)
 
     # optimizer / criterion
-    num_epoch = 50
+    num_epoch = 10
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
     scaler = GradScaler()
